@@ -12,7 +12,7 @@
     border: 1px solid;
     padding: 30px;
   }
-  .name {
+  .username {
     margin-left: 29px;
   }
   .password{
@@ -45,23 +45,51 @@
 </head>
 <body>
 
-  <form action="submit" id="login" method="POST">
+  <form action="/login" id="login" method="POST">
   <h2>Login</h2>  
   <div>
   <label for="Name">Name</label>
-  <input class="name" type="text" autocomplete="off">
+  <input class="username" name="username" type="text" placeholder="Your name here...." autocomplete="off">
   </div>
 
   <div>
   <label for="Password">Password</label>  
-  <input class="password" type="text" autocomplete="off">
+  <input class="password" name="password" type="password" autocomplete="off">
   </div>
  
   <div class="div-button">
-  <button class="submit-button">Submit</button>
+  <button type="submit" class="submit-button">Submit</button>
   </div>
   <a href="/signup">Or, you can create an account</a>
   </form>
+
+  <script>
+    const login = document.querySelector('#login');
+    const username =  document.querySelector('.username');
+    const password = document.querySelector('.password');
+    const button = document.querySelector('.submit-button');
+
+    button.addEventListener('submit', (e)=> {
+      e.preventDefault();
+      const credentials = fetch('/login', {
+              method: 'POST',
+              headers: {
+                'Content-Type':'application/json',
+              },
+              body: JSON.stringify({
+                    username: username.value,
+                    password: password.value,
+              }),
+       })
+        .then((response)=> response.json())
+        .then((data)=> console.log(data))
+    })
+                  
+    
+  </script>
+
+
+
 
 </body>
 </html>
