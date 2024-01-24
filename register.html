@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Simple Register</title>
   <style>
-  #login {
+  #register {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -34,27 +34,51 @@
 </head>
 <body>
 
-  <form action="submit" id="login" method="POST">
+  <form action="/register" id="register" method="POST">
   <h2>Register</h2>  
   <div>
   <label for="Name">Name</label>
-  <input class="name" type="text">
+  <input class="name" type="text" required autocomplete="off">
+  <small></small>
   </div>
 
   <div>
   <label for="Email">Email</label>
-  <input class="email" type="text">
+  <input class="email" type="email" required autocomplete="off">
   </div>
 
   <div>
   <label for="Password">Password</label>  
-  <input class="password" type="text">
+  <input class="password" type="password" required autocomplete="off">
   </div>
   <div class="buttons">
-    <button class="submit">Submit</button>
+    <button class="submit" type="submit">Submit</button>
   </div>
   </form>
 
+  <script>
+        const form= document.querySelector('#register');
+        form.addEventListener('submit', (event) => {
+              event.preventDefault();
+              name = document.querySelector('.name').value;              
+              email = document.querySelector('.email').value;
+              password = document.querySelector('.password').value;         
+
+              const credentials = fetch('http://127.0.0.1:3800/register', {
+                    method: 'POST',
+                    headers: {
+                          'Content-Type': 'application/json',
+                        },
+                    body: JSON.stringify({ 
+                          username:name, 
+                          email:email, 
+                          password:password,
+                        }),
+                  })
+                .then(response => response.json())
+                .then(data => console.log(data));
+        });
+  </script>
 </body>
 </html>
 
