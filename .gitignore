@@ -1,0 +1,8 @@
+# Files to be ignored
+package-lock.json 
+
+# DB credentials
+.env
+
+
+
