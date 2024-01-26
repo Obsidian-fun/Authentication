@@ -38,28 +38,48 @@ app.get('/signup', (req,res)=> {
   res.sendFile(join(__dirname,'register.html'));
 });
 
-/*app.post('/login', async (req, res)=> {
+app.post('/login', async (req, res)=> {
   const {username, password} = req.body;
-  const user =  await user.FindOne({username}); // Change this to db query
+  
   // check for validity,
-  if (!user || !bcrypt.compareSync(password, user.password)) {
-    return res.status(400).send({
-      message:"Username or Password is incorrect!",
-    })
-  } 
-  // generate token,
-  const token = jwt.sign({username: user.username},'secret_key');
-  // store the token in a database or in an HTTP-only cookie,
-  user.token = token;
-  await user.save();
-  // return the token to client,
-  res.json({token});
+  connection.query(`SELECT * FROM users WHERE username=?; `, [username],
+    (err, result) =>{
+      if(err) {
+        return res.status(404).send({
+          message:err,
+        });
+      }
+      console.log('Password =', result[0].password); 
+      bcrypt.compare(
+        password, result[0].password,
+        (bErr, bResult)=>{
+          if (bErr) {
+            return res.status(404).send({
+              message:"Incorrect username or password!",
+            });
+          }
+          if(bResult) {
+            const accessToken = jwt.sign({username}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '7d'});
+          
+          connection.query(`UPDATE users SET last_login=NOW() WHERE id=?;`, [result[0].id,]);
+          
+          return res.status(200).send({
+            message:"Logged In!",
+            accessToken: accessToken,
+            user: result[0],
+          });
+        }
+       return res.status(400).send({
+         message: "Incorrect username or password!",
+       });
+        }
+      );
+    }
+  );
 });
-*/
 
 app.post('/register', (req, res)=>{
   let { username, email, password } = req.body;
-  console.log({ username, email, password }); 
   
   const user = { name:username };
   const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
