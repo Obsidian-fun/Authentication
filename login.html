@@ -66,13 +66,12 @@
   <script>
       const form = document.querySelector('#login');
         
-      form.addEventListener('submit', (event)=> {
+      form.addEventListener('submit', async(event)=> {
             event.preventDefault();
             let username = document.querySelector('.username').value;
             let password = document.querySelector('.password').value;
-            console.log(username, password);          
-            
-            const credentials = fetch('http://127.0.0.1:3800/login', {
+           
+            const response = await fetch('http://127.0.0.1:3800/login', {
                   method: 'POST',
                   headers: {
                             'Content-Type': 'application/json',
@@ -82,9 +81,11 @@
                             password:password,
                            }),
                 })
-              .then(response => response.json())
-              .then(data => console.log(data));
-      });
+              const data = await response.json();
+            if(data.user.password) {
+                  window.location.href = '/secret-route';
+             }
+          });        
   </script>
 
 

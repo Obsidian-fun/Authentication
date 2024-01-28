@@ -31,7 +31,7 @@ export function isLoggedIn(req, res, next) {
     });
   }
   try {
-    const authHeader = req.headers.authorizaton;
+    const authHeader = req.headers.authorization;
     const token = authHeader.split('')[1]; 
     const decoded = jwt.verify(token, 'SECRETKEY');
     req.userData = decoded;

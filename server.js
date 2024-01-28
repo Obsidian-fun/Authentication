@@ -30,6 +30,8 @@ const connection = mysql.createConnection({
 });
 connection.connect();
 
+
+// Initial GET requests to fetch pages,
 app.get('/', (req,res)=> {
   res.sendFile(join(__dirname,'login.html'));
 });
@@ -38,46 +40,38 @@ app.get('/signup', (req,res)=> {
   res.sendFile(join(__dirname,'register.html'));
 });
 
-app.post('/login', async (req, res)=> {
-  const {username, password} = req.body;
-  
-  // check for validity,
-  connection.query(`SELECT * FROM users WHERE username=?; `, [username],
-    (err, result) =>{
-      if(err) {
-        return res.status(404).send({
-          message:err,
-        });
-      }
-      console.log('Password =', result[0].password); 
-      bcrypt.compare(
-        password, result[0].password,
-        (bErr, bResult)=>{
-          if (bErr) {
-            return res.status(404).send({
-              message:"Incorrect username or password!",
-            });
-          }
-          if(bResult) {
-            const accessToken = jwt.sign({username}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '7d'});
-          
-          connection.query(`UPDATE users SET last_login=NOW() WHERE id=?;`, [result[0].id,]);
-          
-          return res.status(200).send({
-            message:"Logged In!",
-            accessToken: accessToken,
-            user: result[0],
+/*
+// Middleware functions,
+function isLoggedIn(req, res, next) {
+  if(!req.headers.authorization) {
+    return res.status(401).send({
+      message:"Not logged in!"
+    });
+  }
+  try {
+    const authHeader = req.headers.authorization;
+    console.log('authHeader = '+ authHeader + '\n');
+    const token = authHeader.split(' ')[1];
+    console.log('token = ' + token + '\n');
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET,(err, decoded)=>{
+        if(err) {
+          res.status(401).send({
+            message:'Something wrong'
           });
         }
-       return res.status(400).send({
-         message: "Incorrect username or password!",
-       });
-        }
-      );
-    }
-  );
-});
+    console.log('decoded = ' + decoded); 
+    req.userData = decoded;
+    next(); });
+  } catch (err) {
+     return res.status(401).send({
+       message:err,
+     });
+  }
+}
 
+*/
+
+// All the POST routes,
 app.post('/register', (req, res)=>{
   let { username, email, password } = req.body;
   
@@ -106,12 +100,49 @@ app.post('/register', (req, res)=>{
   });
 });
 
-/*  res.status(200).send({
-    message:"Registered",
-    accessToken:accessToken,
-  }); 
-*/
 
+// All the POST requests, to work with user credentials,
+app.post('/login', async (req, res)=> {
+  const {username, password} = req.body;
+  
+  // check for validity,
+  connection.query(`SELECT * FROM users WHERE username=?; `, [username],
+    (err, result) =>{
+      if(err) {
+        return res.status(404).send({
+          message:err,
+        });
+      }
+      
+      bcrypt.compare(
+        password, result[0].password,
+        (bErr, bResult)=>{
+          if (bErr) {
+            return res.status(404).send({
+              message:"Incorrect username or password!",
+            });
+          }
+          if(bResult) {
+     //       const accessToken = jwt.sign({username}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '7d'});
+          // UPDATE login time of user,
+          connection.query(`UPDATE users SET last_login=NOW() WHERE id=?;`, [result[0].id,]);
+          
+          return res.status(200).send({
+            message:"Logged In!",
+            user: result[0],
+          });          
+        }          
+       return res.status(400).send({
+         message: "Incorrect username or password!",
+       });
+        }
+      );
+    }
+  );
+});
+
+
+// Secret route, only logged in users can fetch these pages,
 app.get('/secret-route', (req, res)=> {
   res.sendFile(join(__dirname,'/secret.html'));
 });
