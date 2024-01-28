@@ -82,6 +82,7 @@
                            }),
                 })
               const data = await response.json();
+              console.log(data.user.username);              
             if(data.user.password) {
                   window.location.href = '/secret-route';
              }

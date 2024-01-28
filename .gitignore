@@ -4,5 +4,6 @@ package-lock.json
 # DB credentials
 .env
 
-
+# Auth Info
+authInfo.txt
 
