@@ -42,7 +42,7 @@ app.get('/signup', (req,res)=> {
 
 /*
 // Middleware functions,
-unction validateRegister(req, res, next) {
+function validateRegister(req, res, next) {
   // Username should be greater than 3 characters
   if(!req.body.username || req.body.username < 3) {
     return res.status(400).send({
