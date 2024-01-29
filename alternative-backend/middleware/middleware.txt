@@ -1,1 +1,0 @@
-Middleware is where the validation of the authentication details such as passwords happen.
