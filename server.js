@@ -106,40 +106,37 @@ app.post('/login', async (req, res)=> {
   const {username, password} = req.body;
   
   // check for validity,
-  connection.query(`SELECT * FROM users WHERE username=?; `, [req.body.username],
+  connection.query(`SELECT * FROM users WHERE username=?; `, [username],
     (err, result) =>{
       if(err) {
-        return res.status(401).send({
-          message:"Incorrect username or password!",
+        return res.status(404).send({
+          message:err,
         });
-      } else if (result.length === 0) {
-        return res.status(401).send({
-          message: "Incorrect username or password!",
-        }); 
-      } else {
-          bcrypt.compare(
-            password, result[0].password,
-            (bErr, bResult)=>{
-              if (bErr) {
-                return res.status(404).send({
-                message:"Incorrect username or password!",
-              });
-              }
-              if(bResult) {
-        //     const accessToken = jwt.sign({username}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '7d'});
-            // UPDATE login time of user,
-               connection.query(`UPDATE users SET last_login=NOW() WHERE id=?;`, [result[0].id,]);
+      }
+      
+      bcrypt.compare(
+        password, result[0].password,
+        (bErr, bResult)=>{
+          if (bErr) {
+            return res.status(404).send({
+              message:"Incorrect username or password!",
+            });
+          }
+          if(bResult) {
+     //       const accessToken = jwt.sign({username}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '7d'});
+          // UPDATE login time of user,
+          connection.query(`UPDATE users SET last_login=NOW() WHERE id=?;`, [result[0].id,]);
           
-              return res.status(200).send({
-                message:"Logged In!",
-                user: result[0],
-              });          
-             }          
+          return res.status(200).send({
+            message:"Logged In!",
+            user: result[0],
+          });          
+        }          
        return res.status(400).send({
          message: "Incorrect username or password!",
        });
         }
-      )};
+      );
     }
   );
 });

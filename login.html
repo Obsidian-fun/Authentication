@@ -81,17 +81,11 @@
                             password:password,
                            }),
                 })
-            try {
               const data = await response.json();
-              if(data.user.password) {
+              console.log(data.user.username);              
+            if(data.user.password) {
                   window.location.href = '/secret-route';
-              } else {
-                  alert('Incorrect username or password!');
-              }
-            }
-            catch(err) {
-                  console.log(err);
-            }
+             }
           });        
   </script>
 
