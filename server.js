@@ -40,7 +40,6 @@ app.get('/signup', (req,res)=> {
   res.sendFile(join(__dirname,'register.html'));
 });
 
-/*
 // Middleware functions,
 function validateRegister(req, res, next) {
   // Username should be greater than 3 characters
@@ -55,16 +54,18 @@ function validateRegister(req, res, next) {
       message: 'Please enter a password greater than 6 characters',
     });
   }
+  /*
   // Passwords must match,
   if(!req.body.password_repeat || req.body.password_repeat != req.body.password) {
     return res.status(400).send({
       message: 'Passwords must match..',
     });
   }
+  */
   next();
 }
 
-
+/*
 function isLoggedIn(req, res, next) {
   if(!req.headers.authorization) {
     return res.status(401).send({
@@ -135,7 +136,11 @@ app.post('/login', async (req, res)=> {
         return res.status(404).send({
           message:err,
         });
-      }
+      } else if (result.length === 0) {
+          return res.status(401).send({
+            message:"Incorrect username or password!",
+          });
+      } else {
       
       bcrypt.compare(
         password, result[0].password,
@@ -160,6 +165,7 @@ app.post('/login', async (req, res)=> {
        });
         }
       );
+      }
     }
   );
 });
